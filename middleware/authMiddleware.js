@@ -28,7 +28,7 @@ export const protect = async (req, res, next) => {
 
 
 export const admin = (req, res, next) => {
-  // ✅ Yeh line add karein
+ 
   console.log("🔐 Admin check - User role:", req.user?.role);
   
   if (req.user?.role?.toLowerCase() === "admin") {

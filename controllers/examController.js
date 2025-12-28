@@ -31,7 +31,6 @@ export const getAllExams = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
 // ================= GET EXAM BY ID =================
 export const getExamById = async (req, res) => {
   try {
@@ -76,3 +75,4 @@ export const deleteExam = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+

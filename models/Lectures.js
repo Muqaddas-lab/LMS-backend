@@ -26,21 +26,23 @@ const lectureSchema = new mongoose.Schema(
 
     type: {
       type: String,
-      enum: ["video", "pdf", "document", "quiz"],
-      default: "video",
+      enum: ["video", "pdf", "document", "excel", "ppt", "quiz", "link"],
+      required: true,
     },
 
+    /* =========================
+       FILE PATHS
+    ========================= */
+    videoPath: { type: String, default: "" },
+    pdfPath: { type: String, default: "" },
+    documentPath: { type: String, default: "" },
+    excelPath: { type: String, default: "" },
+    pptPath: { type: String, default: "" },
+
+    /* =========================
+       VIDEO / FILE URL
+    ========================= */
     videoUrl: {
-      type: String,
-      default: "",
-    },
-
-    videoPath: {
-      type: String,
-      default: "",
-    },
-
-    pdfPath: {
       type: String,
       default: "",
     },

@@ -2,62 +2,44 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-// ===============================
-// CREATE UPLOADS FOLDER IF NOT EXIST
-// ===============================
+// Create uploads folder if not exists
 const uploadDir = "uploads";
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-}
-
-// ===============================
-// STORAGE CONFIG
-// ===============================
+// Storage
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-
+  destination: (req, file, cb) => cb(null, uploadDir),
   filename: (req, file, cb) => {
-    const uniqueName =
-      Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const uniqueName = Date.now() + "-" + Math.round(Math.random() * 1e9);
     cb(null, uniqueName + path.extname(file.originalname));
   },
 });
 
-// ===============================
-// FILE FILTER (VIDEO + PDF + IMAGE)
-// ===============================
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = [
-    "image/jpeg",
-    "image/png",
-    "video/mp4",
-    "application/pdf",
-  ];
+// File filter
+const allowedTypes = [
+  "image/jpeg", "image/png",
+  "video/mp4", "video/mkv", "video/webm",
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.ms-powerpoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  "text/csv",
+];
 
-  if (allowedTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(
-      new Error(
-        "Only JPG, PNG images, MP4 videos and PDF files are allowed"
-      ),
-      false
-    );
-  }
+const fileFilter = (req, file, cb) => {
+  allowedTypes.includes(file.mimetype)
+    ? cb(null, true)
+    : cb(new Error(`Unsupported file type: ${file.mimetype}`), false);
 };
 
-// ===============================
-// MULTER CONFIG
-// ===============================
+// Multer upload
 const upload = multer({
   storage,
   fileFilter,
-  limits: {
-    fileSize: 100 * 1024 * 1024, // 100MB
-  },
+  limits: { fileSize: 200 * 1024 * 1024 }, // 200MB
 });
 
 export default upload;

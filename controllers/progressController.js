@@ -1,4 +1,5 @@
 import Progress from "../models/Progress.js";
+import Course from "../models/Course.js";
 
 // Track Lecture Completion
 export const trackLecture = async (req, res) => {
@@ -21,13 +22,28 @@ export const trackLecture = async (req, res) => {
     }
 };
 
-// Get Progress / Analytics
+
+
 export const getProgress = async (req, res) => {
-    try {
-        const progress = await Progress.findOne({ student: req.params.studentId, course: req.params.courseId }).populate("completedLectures");
-        const totalLectures = progress ? progress.completedLectures.length : 0;
-        res.status(200).json({ progress, totalLectures });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+  try {
+    const progress = await Progress.findOne({
+      student: req.params.studentId,
+      course: req.params.courseId,
+    })
+      .populate("course", "title duration")
+      .populate("completedLectures", "title lectureNumber");
+
+    if (!progress) {
+      return res.status(200).json({ message: "No progress found", progress: null });
     }
+
+    const totalCompleted = progress.completedLectures.length;
+
+    res.status(200).json({
+      progress,
+      totalCompleted,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
