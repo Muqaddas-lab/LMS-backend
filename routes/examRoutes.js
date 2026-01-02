@@ -1,5 +1,11 @@
 import express from "express";
-import { createExam, getAllExams, getExamById, updateExam, deleteExam } from "../controllers/examController.js";
+import { 
+  createExam, 
+  getAllExams, 
+  getExamById, 
+  updateExam, 
+  deleteExam 
+} from "../controllers/examController.js";
 
 const router = express.Router();
 
@@ -10,3 +16,5 @@ router.put("/:id", updateExam);
 router.delete("/:id", deleteExam);
 
 export default router;
+
+

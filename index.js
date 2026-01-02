@@ -18,6 +18,7 @@ import examRoutes from "./routes/examRoutes.js";
 import questionRoutes from "./routes/questionRoutes.js";
 import attemptRoutes from "./routes/attemptRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
+import adminExamResultsRoutes from "./routes/adminExamResults.js";
 
 import errorHandler from "./middleware/errorMiddleware.js";
 
@@ -50,7 +51,7 @@ app.use("/api/exams", examRoutes);
 app.use("/api/questions", questionRoutes);
 app.use("/api/attempts", attemptRoutes);
 app.use("/api/messages", messageRoutes);
-
+app.use("/api/admin", adminExamResultsRoutes);
 // ====== Test Route ======
 app.get("/", (req, res) => {
   res.send("LMS Backend Server Running Successfully! 🚀");

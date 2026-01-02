@@ -21,30 +21,17 @@ export const sendMessage = async (req, res) => {
       });
     }
 
-    const senderRole = Array.isArray(req.user.role)
-      ? req.user.role[0]
-      : req.user.role;
+    const senderRole = Array.isArray(req.user.role) ? req.user.role[0] : req.user.role;
+    const receiverRole = Array.isArray(receiverUser.role) ? receiverUser.role[0] : receiverUser.role;
 
-    const receiverRole = Array.isArray(receiverUser.role)
-      ? receiverUser.role[0]
-      : receiverUser.role;
-
-    // ❌ student → student not allowed
-    if (
-      senderRole.toLowerCase() === "student" &&
-      receiverRole.toLowerCase() === "student"
-    ) {
+    if (senderRole.toLowerCase() === "student" && receiverRole.toLowerCase() === "student") {
       return res.status(403).json({
         success: false,
         message: "Students cannot message each other",
       });
     }
 
-    // ❌ admin → admin not allowed
-    if (
-      senderRole.toLowerCase() === "admin" &&
-      receiverRole.toLowerCase() === "admin"
-    ) {
+    if (senderRole.toLowerCase() === "admin" && receiverRole.toLowerCase() === "admin") {
       return res.status(403).json({
         success: false,
         message: "Admins cannot message each other",
@@ -57,7 +44,6 @@ export const sendMessage = async (req, res) => {
       text,
     });
 
-    // ✅ Populate sender & receiver with fullName
     const populatedMessage = await Message.findById(message._id)
       .populate("sender", "fullName role email")
       .populate("receiver", "fullName role email");
@@ -114,18 +100,12 @@ export const getMessages = async (req, res) => {
 /* ================= USERS FOR SIDEBAR ================= */
 export const getUsersForMessaging = async (req, res) => {
   try {
-    const senderRole = Array.isArray(req.user.role)
-      ? req.user.role[0]
-      : req.user.role;
+    const senderRole = Array.isArray(req.user.role) ? req.user.role[0] : req.user.role;
 
-    // ✅ Fetch all users except current user
-    let users = await User.find({
-      _id: { $ne: req.user._id },
-    })
+    let users = await User.find({ _id: { $ne: req.user._id } })
       .select("fullName role email")
       .lean();
 
-    // 🎯 student → only admins
     if (senderRole.toLowerCase() === "student") {
       users = users.filter((u) => {
         const role = Array.isArray(u.role) ? u.role[0] : u.role;
@@ -133,7 +113,6 @@ export const getUsersForMessaging = async (req, res) => {
       });
     }
 
-    // 🎯 admin → only students
     if (senderRole.toLowerCase() === "admin") {
       users = users.filter((u) => {
         const role = Array.isArray(u.role) ? u.role[0] : u.role;
@@ -147,6 +126,45 @@ export const getUsersForMessaging = async (req, res) => {
     });
   } catch (error) {
     console.error("GetUsersForMessaging Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+/* ================= DELETE MESSAGE ================= */
+export const deleteMessage = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+
+    const message = await Message.findById(messageId);
+    if (!message) {
+      return res.status(404).json({
+        success: false,
+        message: "Message not found",
+      });
+    }
+
+    // Only sender or receiver can delete
+    if (
+      message.sender.toString() !== req.user._id.toString() &&
+      message.receiver.toString() !== req.user._id.toString()
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to delete this message",
+      });
+    }
+
+    await Message.findByIdAndDelete(messageId);
+
+    res.status(200).json({
+      success: true,
+      message: "Message deleted successfully",
+    });
+  } catch (error) {
+    console.error("DeleteMessage Error:", error);
     res.status(500).json({
       success: false,
       message: "Server error",
