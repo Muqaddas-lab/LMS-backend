@@ -22,8 +22,8 @@ export const createUser = async (req, res) => {
     } = req.body;
 
     // Validation
-    if (!fullName || !email) {
-      return res.status(400).json({ message: "Full name and email are required" });
+    if (!fullName || !email || !phone) {
+      return res.status(400).json({ message: "Full name, email, phone are required" });
     }
 
     // Check if user exists
